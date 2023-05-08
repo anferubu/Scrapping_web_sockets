@@ -151,6 +151,8 @@ class WebSocketClient():
             logger.debug(f'NST Token ID:{nst_token}\n')
             return nst_token
 
+        return '27640'
+
 
     def _gen_nst_auth_code_str(self, nst_token):
         d_str = self._nst_decrypt(nst_token)
@@ -200,28 +202,44 @@ class WebSocketClient():
         from selenium.webdriver.support.ui import WebDriverWait
         from selenium.webdriver.support import expected_conditions as EC
 
+        from webdriver_manager.chrome import ChromeDriverManager 
+        from selenium.webdriver.chrome.service import Service as ChromeService
+        from selenium.webdriver.chrome.options import Options  
+
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-setuid-sandbox')
 
         options.add_argument('User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35')
-        options.add_argument('Host=www.bet365.com.au')
-        options.add_argument('Referer=https://www.bet365.com.au/?')
-        options.add_argument('Accept=*/*')
-        options.add_argument('Accept-Encoding=gzip, deflate, br')
-        options.add_argument('Accept-Language=en-US,en;q=0.9')
-        options.add_argument('Connection=keep-alive')
-        options.add_argument('Sec-Fetch-Dest=empty')
-        options.add_argument('Sec-Fetch-Mode=cors')
-        options.add_argument('Sec-Fetch-Site=same-origin')
+        #options.add_argument('Host=www.bet365.com.au')
+        #options.add_argument('Referer=https://www.bet365.com.au/?')
+        #options.add_argument('Accept=*/*')
+        #options.add_argument('Accept-Encoding=gzip, deflate, br')
+        #options.add_argument('Accept-Language=en-US,en;q=0.9')
+        #options.add_argument('Connection=keep-alive')
+        #options.add_argument('Sec-Fetch-Dest=empty')
+        #options.add_argument('Sec-Fetch-Mode=cors')
+        #options.add_argument('Sec-Fetch-Site=same-origin')
+        #options.add_argument('Permissions-Policy=interest-cohort=()')
 
-        driver = webdriver.Chrome(options=options)
+        cookies = [
+            {'name': 'rmbs', 'value': '3'},
+            {'name': 'aps03', 'value': 'cf=N&cg=1&cst=0&ct=13&hd=N&lng=30&tzi=29'},
+            {'name': '__cf_bm', 'value': 'sMEFTlsTiiKz212fRW5Drb6GZ0H6wuO4q67LikvKNiE-1683436232-0-AcUqETqt8pduGrj1q23JKfO5H8ENxy/yPlnoQCdyrig9767i0lA0edivEnbvht1ObKO6q9yC91y2v2UbHtCOON4='},
+            {'name': 'pstk', 'value': '77B251D19179C2D2A5385E7D45918533000003'},
+            {'name': 'cc', 'value': '1'},
+            {'name': 'swt', 'value': 'AfNo/hK23upGkDk9inhTQ3XKVO2B540y0uxWXKgW8iJvRwdBeyF4cwBkTylHO/jfQZ4j7Hj/jRtemcEWRviALkKywQXBTDYUsa2r6ZSzsqV+qIr9qvCYICTMLKjPHU+WTRzB8UIgIJlgPKZznajo/VldkEOpyAlPG8jkDKTVQQ=='},
+        ]
+
+        driver = webdriver.Chrome(options=options, service=ChromeService(ChromeDriverManager().install()))
 
         driver.get(self._URLS_NSTTOKEN_ID + '?#/AC/B19/C20459137/D50/E190002/F50/')
 
-        wait = WebDriverWait(driver, 60)
-        elem = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'src-ParticipantFixtureDetailsHigher_Team')))
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+
+        time.sleep(5)
         ps = driver.page_source
 
         logger.debug(f'Código fuente de la página:\n\n{ps}\n')
